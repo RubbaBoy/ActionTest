@@ -15,7 +15,13 @@ This action prints "Hello World" or "Hello" + the name of a person to greet to t
 The time we greeted you.
 
 ## Example usage
-
-uses: actions/hello-world-docker-action@v1
+```yaml
+uses: RubbaBoy/ActionTest@v1
 with:
   who-to-greet: 'Mona the Octocat'
+```
+
+
+```
+git update-index --chmod=+x entrypoint.sh
+```

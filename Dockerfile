@@ -5,16 +5,27 @@
 #
 #COPY --from=dartc /usr/lib/dart/bin/dartaotruntime /dartaotruntime
 #
-#ADD entrypoint.aot /.
+#RUN mkdir -p /usr/src/app
+#ONBUILD ADD . /usr/src/app
+#ONBUILD RUN
+#ONBUILD ADD entrypoint.aot /.
 #
 ## Code file to execute when the docker container starts up (`entrypoint.sh`)
 #ENTRYPOINT ["/dartaotruntime", "entrypoint.aot"]
 
-# Container image that runs your code
-FROM alpine:3.10
+FROM google/dart:2.6-dev AS dart-runtime
 
-# Copies your code file from your action repository to the filesystem path `/` of the container
-COPY entrypoint.sh /entrypoint.sh
+WORKDIR /app
 
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+ADD pubspec.* /app/
+RUN pub get
+ADD bin /app/bin/
+ADD lib /app/lib/
+RUN pub get --offline
+RUN dart2native /app/bin/server.dart -o /app/server
+
+FROM frolvlad/alpine-glibc:alpine-3.9_glibc-2.29
+
+COPY --from=dart-runtime /app/server /server
+
+ENTRYPOINT ["/server"]
