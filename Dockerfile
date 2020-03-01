@@ -5,7 +5,6 @@ WORKDIR /app
 ADD pubspec.* /app/
 RUN pub get
 ADD bin /app/bin/
-ADD lib /app/lib/
 RUN pub get --offline
 RUN dart2native /app/bin/main.dart -o /app/server
 
